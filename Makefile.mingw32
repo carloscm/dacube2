@@ -1,0 +1,28 @@
+CXX=i386-mingw32msvc-g++
+CC=i386-mingw32msvc-gcc
+CLINK=i386-mingw32msvc-gcc -s
+WINDRES=i386-mingw32msvc-windres
+CDEPS=i386-mingw32msvc-gcc -MM -MG
+CXXFLAGS=-D__WIN32__ -D__COMPILE_MINIFMOD__ -mwindows -Wall -Os -pipe 
+CFLAGS=-D__WIN32__ -D__COMPILE_MINIFMOD__ -mwindows -Wall -Os -pipe 
+LDFLAGS=-D__WIN32__ -D__COMPILE_MINIFMOD__ -mwindows -Wall -Os -pipe -s
+NASM=nasm
+NASMFLAGS=-f win32 -D__WIN32__
+#LIBS=-lddraw -lwinmm -ldxguid
+LIBS=-lddraw -ldsound -ldxguid
+
+SOURCE:=font.c title.c dacube2.c drawchar.c 3dengine.c effects.c
+SOURCE+=resources/dacube2.rc
+SOURCE+=mxm/mxmplay.asm mxm/dsio.asm mxm/module.asm
+#SOURCE+=minifmod/fmusic.c minifmod/fsound.c minifmod/mixer_clipcopy.c
+#SOURCE+=minifmod/mixer_fpu_ramp.c minifmod/mixer_fpu_ramp_asm.asm minifmod/music_formatxm.c
+#SOURCE+=minifmod/system_file.c
+
+SOURCE+=oldskool-win32.c win32/win.c oldskool-mxm.c
+
+EXE=dacube2.exe
+BUILD=mingw32-i586
+OEX=obj
+
+include Makefile.common
+

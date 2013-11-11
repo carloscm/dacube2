@@ -1,0 +1,30 @@
+CXX=psp-g++
+CC=psp-gcc
+CLINK=psp-gcc -s
+WINDRES=i386-mingw32msvc-windres
+CDEPS=psp-gcc -MM -MG
+CXXFLAGS=-D__PSP__ -D__COMPILE_NOSOUND__ -Wall -Os -pipe 
+CFLAGS=-D__PSP__ -D__COMPILE_NOSOUND__  -Wall -Os -pipe 
+LDFLAGS=-D__PSP__ -D__COMPILE_NOSOUND__ -Wall -Os -pipe -s
+NASM=nasm
+NASMFLAGS=-f win32 -D__WIN32__
+#LIBS=-lddraw -lwinmm -ldxguid
+#LIBS=-lddraw -ldsound -ldxguid
+LIBS=-L$(PSPSDK)/lib -lpsplibc -lpspdebug -lpspkernel
+
+SOURCE:=font.c title.c dacube2.c drawchar.c 3dengine.c effects.c
+#SOURCE+=resources/dacube2.rc
+#SOURCE+=mxm/mxmplay.asm mxm/dsio.asm mxm/module.asm
+#SOURCE+=minifmod/fmusic.c minifmod/fsound.c minifmod/mixer_clipcopy.c
+#SOURCE+=minifmod/mixer_fpu_ramp.c minifmod/mixer_fpu_ramp_asm.asm minifmod/music_formatxm.c
+#SOURCE+=minifmod/system_file.c
+
+#SOURCE+=oldskool-psp.c psp/psp.c oldskool-nosound.c
+
+SOURCE+=oldskool-psp.c oldskool-nosound.c
+
+EXE=dacube2.psp
+BUILD=psp-allegrex
+OEX=o
+
+include Makefile.common

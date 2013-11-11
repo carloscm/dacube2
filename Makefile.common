@@ -1,0 +1,79 @@
+
+OBJS:=$(SOURCE:%.cpp=$(BUILD)/%.$(OEX))
+OBJS:=$(OBJS:%.rc=$(BUILD)/%.$(OEX))
+OBJS:=$(OBJS:%.c=$(BUILD)/%.$(OEX))
+OBJS:=$(OBJS:%.asm=$(BUILD)/%.$(OEX))
+SOURCEDIRS:=$(dir $(SOURCE))
+SOURCEDIRS:=$(sort $(SOURCEDIRS))
+#TAGFILES:=$(addsuffix tags,$(SOURCEDIRS))
+SOURCEDIRS:=$(filter-out ./,$(SOURCEDIRS))
+BUILDDIRS:=$(BUILD) $(addprefix $(BUILD)/,$(SOURCEDIRS))
+SUBMAKESF:=$(addprefix --file=,$(SUBMAKES))
+BUILDCOUNTER:=../build.txt
+BUILDLOG:=../buildlog.txt
+BUILDINCLUDE:=build.h
+MAKEFILEDEP:=$(BUILD)/Makefile.dep
+
+#all :: $(BUILDDIRS) buildtags buildlog $(MAKEFILEDEP) $(EXE) postbuild
+all :: $(BUILDDIRS) buildlog $(MAKEFILEDEP) $(EXE) postbuild
+
+buildlog ::
+	@(if [[ -e $(BUILDCOUNTER) ]]; then \
+		COUNT=`cat $(BUILDCOUNTER)`;\
+		COUNT=`expr $$COUNT + 1`;\
+		INTERNAL=`pwd|sed "s%.*/\(.*/.*\)%\1%"`;\
+		echo $$COUNT>$(BUILDCOUNTER);\
+		echo "#define" BUILD_NUMBER \"$$COUNT\" >$(BUILDINCLUDE);\
+		echo "#define" BUILD_PLATFORM \"$(BUILD)\" >>$(BUILDINCLUDE);\
+		echo "#define" BUILD_INTERNAL \"$$INTERNAL\" >>$(BUILDINCLUDE);\
+		echo "#define" BUILD_ID BUILD_INTERNAL \"-build\" BUILD_NUMBER \"-\" BUILD_PLATFORM \" compiled \" __DATE__ \" \" __TIME__>>$(BUILDINCLUDE);\
+		echo "-------------------------------------" >>$(BUILDLOG);\
+		echo Build of $$INTERNAL on `date`>>$(BUILDLOG);\
+		echo Build number $$COUNT for platform $(BUILD)>>$(BUILDLOG);\
+	fi)
+
+postbuild ::
+	@(if [[ -e $(BUILDCOUNTER) ]]; then \
+		echo Build on `date`: build OK>>$(BUILDLOG);\
+	fi)
+
+$(BUILDDIRS):
+	mkdir -p $(BUILDDIRS) 
+
+$(MAKEFILEDEP):
+	mkdir -p $(BUILD)
+	$(CDEPS) $(SOURCE) | sed 's|^\([^ ]\)|$(BUILD)/\1|g' > $(MAKEFILEDEP)
+
+#buildtags ./tags: $(SOURCE)
+#	@(ctags -R;\
+#	DIRS="$(SOURCEDIRS)";\
+#	WORKDIR=`pwd`;\
+#	for dirname in $$DIRS; do\
+#		cd $$dirname;\
+#		ctags -R;\
+#		cd $$WORKDIR;\
+#	done)
+
+-include $(MAKEFILEDEP)
+
+$(EXE): $(OBJS)
+	$(CLINK) $(LDFLAGS) $(OBJS) $(LIBS) -o $@
+
+$(BUILD)/%.$(OEX): %.cpp
+	$(CXX) $(CXXFLAGS) $< -c -o $@
+
+$(BUILD)/%.$(OEX): %.c
+	$(CC) $(CFLAGS) $< -c -o $@
+
+$(BUILD)/%.$(OEX): %.asm
+	$(NASM) $(NASMFLAGS) $< -o $@
+
+$(BUILD)/%.$(OEX): %.rc
+	$(WINDRES) $< -O coff -o $@
+
+clean:
+	rm -f  $(EXE)
+	rm -Rf $(BUILD)
+	rm -f gmon.out
+	rm -f $(BUILDINCLUDE)
+#	rm -f $(TAGFILES)

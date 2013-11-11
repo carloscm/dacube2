@@ -1,0 +1,17 @@
+
+TARGET = dacube2
+OBJS = font.c title.c dacube2.c drawchar.c 3dengine.c effects.c oldskool-psp.c oldskool-nosound.c
+
+INCDIR =
+CFLAGS = -O2 -G0 -Wall -Wall -D__PSP__ -D__COMPILE_NOSOUND__
+CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti  -D__PSP__ -D__COMPILE_NOSOUND__
+ASFLAGS = $(CFLAGS)
+
+LIBDIR =
+LIBS=-lpspgu
+
+EXTRA_TARGETS = EBOOT.PBP
+PSP_EBOOT_TITLE = dacube2
+
+PSPSDK=$(shell psp-config --pspsdk-path)
+include $(PSPSDK)/lib/build.mak
